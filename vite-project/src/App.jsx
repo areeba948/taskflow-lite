@@ -45,22 +45,20 @@ const App = () => {
       <div style={styles.columns}>
         {/* Left column → Ticket Form + Comments */}
         <div style={styles.left}>
-          <TicketForm onSubmit={addOrUpdateTicket} ticket={selectedTicket} />
-          {selectedTicket && (
-            <CommentList comments={selectedTicket.comments} onAddComment={addComment} />
-          )}
+        <TicketForm onSubmit={addOrUpdateTicket} ticket={selectedTicket} />
         </div>
+
 
         {/* Right column → Ticket List */}
         <div style={styles.right}>
           <TicketList
-  tickets={tickets}
-  onEdit={ticket => setSelectedTicket(ticket)}
-  onDelete={id => setTickets(tickets.filter(t => t.id !== id))}
-  onAddComment={(ticket, comment) => {
-    const updated = { ...ticket, comments: [...ticket.comments, { id: Date.now(), ...comment }] };
-    setTickets(tickets.map(t => (t.id === ticket.id ? updated : t)));
-    if (selectedTicket?.id === ticket.id) setSelectedTicket(updated);
+            tickets={tickets}
+            onEdit={ticket => setSelectedTicket(ticket)}
+            onDelete={id => setTickets(tickets.filter(t => t.id !== id))}
+            onAddComment={(ticket, comment) => {
+            const updated = { ...ticket, comments: [...ticket.comments, { id: Date.now(), ...comment }] };
+            setTickets(tickets.map(t => (t.id === ticket.id ? updated : t)));
+            if (selectedTicket?.id === ticket.id) setSelectedTicket(updated);
   }}
 />
 

@@ -8,9 +8,11 @@ const Dashboard = ({ tickets }) => {
     return acc;
   }, {});
 
-  // Count by priority
+  // ✅ Count by priority — only include *non-closed* tickets
   const priorityCount = tickets.reduce((acc, t) => {
-    if (t.priority) acc[t.priority] = (acc[t.priority] || 0) + 1;
+    if (t.status !== 'closed' && t.priority) {
+      acc[t.priority] = (acc[t.priority] || 0) + 1;
+    }
     return acc;
   }, {});
 
@@ -22,7 +24,9 @@ const Dashboard = ({ tickets }) => {
         <h1 style={styles.title}>TaskFlow Lite</h1>
       </header>
 
-      <p style={styles.welcome}>Welcome back! Here's a quick overview of your tasks:</p>
+      <p style={styles.welcome}>
+        Welcome back! Here's a quick overview of your tasks:
+      </p>
 
       {/* Status Cards */}
       <div style={styles.cards}>
