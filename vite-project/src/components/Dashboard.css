@@ -1,50 +1,106 @@
+/* Container */
 .dashboard-container {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  padding: 30px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  min-height: 80vh;
+  color: #1f2937;
 }
 
-.dashboard-title {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 2rem;
-  color: #333;
-}
-
-.task-list {
-  margin-top: 20px;
+/* Header */
+.dashboard-header {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  border-radius: 14px;
+  padding: 16px 28px;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.task-item {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background-color: #f0f2f5;
-  border-radius: 8px;
+  justify-content: space-between;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
-.delete-btn {
-  background-color: #ff6b6b;
-  color: white;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-weight: bold;
-  transition: 0.2s;
+/* Header Left */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.delete-btn:hover {
-  background-color: #ff4c4c;
+/* Logo */
+.dashboard-logo {
+  width: 46px;
+  height: 46px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.no-task {
+/* Title */
+.dashboard-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+/* Button */
+.new-ticket-btn {
+  padding: 10px 20px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+.new-ticket-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Welcome Text */
+.dashboard-welcome {
+  font-size: 16px;
+  margin-bottom: 25px;
+  color: #475569;
+}
+
+/* Cards Layout */
+.dashboard-cards {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+/* Individual Card */
+.dashboard-card {
+  flex: 1 1 220px;
+  padding: 25px;
+  border-radius: 14px;
+  background-color: #ffffff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
   text-align: center;
-  color: #999;
-  font-style: italic;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Title & Value */
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.card-value {
+  font-size: 34px;
+  font-weight: 700;
+  margin-top: 8px;
+  color: #111827;
 }

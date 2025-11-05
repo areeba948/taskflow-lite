@@ -56,8 +56,8 @@ const styles = {
   },
   newTicketButton: {
     padding: "8px 14px",
-    backgroundColor: "#007bff",
-    color: "#fff",
+    backgroundColor: "#fff",
+    color: "#007bff",
     border: "none",
     borderRadius: 6,
     cursor: "pointer",
