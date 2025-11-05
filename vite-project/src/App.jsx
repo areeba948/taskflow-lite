@@ -1,87 +1,150 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard.jsx';
-import TicketSection from './components/TicketSection.jsx';
 import TicketList from './components/TicketList.jsx';
-import TicketForm from './components/TicketForm.jsx'; // ✅ import the form for popup
+import TicketForm from './components/TicketForm.jsx';
 
+// Main App component
 const App = () => {
+  // State to store all tickets, initialized from localStorage if available
   const [tickets, setTickets] = useState(() => {
     const saved = localStorage.getItem('tickets');
     return saved ? JSON.parse(saved) : [];
   });
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [showForm, setShowForm] = useState(false); // ✅ for popup visibility
 
-  // Save tickets to localStorage
+  // State for the ticket currently selected for editing
+  const [selectedTicket, setSelectedTicket] = useState(null);
+
+  // State to control whether the TicketForm is visible
+  const [showForm, setShowForm] = useState(false);
+
+  // Save tickets to localStorage whenever tickets state changes
   useEffect(() => {
     localStorage.setItem('tickets', JSON.stringify(tickets));
   }, [tickets]);
 
+  // Add a new ticket or update an existing ticket
   const addOrUpdateTicket = (ticket) => {
-    if (ticket.id && tickets.some(t => t.id === ticket.id)) {
-      setTickets(tickets.map(t => (t.id === ticket.id ? ticket : t)));
-    } else {
-      ticket.id = Date.now();
-      ticket.createdAt = new Date().toISOString();
-      ticket.comments = ticket.comments || [];
-      setTickets([...tickets, ticket]);
-    }
+    const now = new Date().toISOString();
+
+    setTickets((prev) => {
+      const existing = prev.find((t) => t.id === ticket.id);
+
+      if (existing) {
+        // Update existing ticket
+        const updated = prev.map((t) =>
+          t.id === ticket.id
+            ? {
+                ...t,
+                ...ticket,
+                status:
+                  ticket.status === 'reopen'
+                    ? 'open'
+                    : ticket.status || existing.status || 'open',
+                updatedAt: now, // Update the edited timestamp
+              }
+            : t
+        );
+        return [...updated];
+      }
+
+      // Add new ticket
+      const newTicket = {
+        ...ticket,
+        id: Date.now(), // Unique id for new ticket
+        status:
+          ticket.status === 'reopen'
+            ? 'open'
+            : ticket.status || 'open',
+        createdAt: now, // Creation timestamp
+        updatedAt: null, // No edits yet
+        comments: ticket.comments || [], // Initialize comments
+      };
+      return [...prev, newTicket];
+    });
+
+    // Close form and clear selected ticket
     setSelectedTicket(null);
-    setShowForm(false); // ✅ close popup after saving
+    setShowForm(false);
   };
 
-  const addComment = (comment) => {
-    if (!selectedTicket) return;
-    const updatedTicket = { ...selectedTicket };
-    updatedTicket.comments.push({ id: Date.now(), ...comment });
-    setTickets(tickets.map((t) => (t.id === updatedTicket.id ? updatedTicket : t)));
-    setSelectedTicket(updatedTicket);
+  // Update an existing ticket (used for status changes like close/reopen)
+  const updateTicket = (updatedTicket) => {
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.id === updatedTicket.id
+          ? {
+              ...updatedTicket,
+              status:
+                updatedTicket.status === 'reopen'
+                  ? 'open'
+                  : updatedTicket.status,
+            }
+          : t
+      )
+    );
   };
+
+  // Delete a ticket by id
+  const deleteTicket = (id) => {
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Add a comment to a ticket
+  const addComment = (ticket, comment) => {
+    const updated = {
+      ...ticket,
+      comments: [...ticket.comments, { id: Date.now(), ...comment }],
+    };
+    setTickets((prev) =>
+      prev.map((t) => (t.id === ticket.id ? updated : t))
+    );
+
+    // Update selectedTicket if it's the one being commented
+    if (selectedTicket?.id === ticket.id) setSelectedTicket(updated);
+  };
+
+  // Normalize tickets: convert 'reopen' status to 'open' for display
+  const normalizedTickets = tickets.map((t) =>
+    t.status === 'reopen' ? { ...t, status: 'open' } : t
+  );
 
   return (
     <div style={styles.container}>
-      {/* ✅ Dashboard with "New Ticket" button */}
-      <Dashboard tickets={tickets} onNewTicket={() => setShowForm(true)} />
+      {/* Dashboard component shows summary cards */}
+      <Dashboard tickets={normalizedTickets} onNewTicket={() => setShowForm(true)} />
 
+      {/* Layout: Right column contains the TicketList */}
       <div style={styles.columns}>
         <div style={styles.right}>
           <TicketList
-            tickets={tickets}
+            tickets={normalizedTickets}
             onEdit={(ticket) => {
               setSelectedTicket(ticket);
-              setShowForm(true); // ✅ open popup for editing
+              setShowForm(true); // Show form when editing
             }}
-            onDelete={(id) => setTickets(tickets.filter((t) => t.id !== id))}
-            onAddComment={(ticket, comment) => {
-              const updated = {
-                ...ticket,
-                comments: [...ticket.comments, { id: Date.now(), ...comment }],
-              };
-              setTickets(tickets.map((t) => (t.id === ticket.id ? updated : t)));
-              if (selectedTicket?.id === ticket.id) setSelectedTicket(updated);
-            }}
+            onDelete={deleteTicket} // Delete ticket handler
+            onAddComment={addComment} // Add comment handler
+            onUpdate={updateTicket} // Update ticket handler
           />
         </div>
       </div>
 
-      {/* ✅ Popup Form */}
+      {/* Show TicketForm when showForm is true */}
       {showForm && (
-        <div style={styles.popupOverlay}>
-          <div style={styles.popupBox}>
-            <TicketForm
-              onSubmit={addOrUpdateTicket}
-              ticket={selectedTicket}
-            />
-            <button style={styles.closeBtn} onClick={() => { setShowForm(false); setSelectedTicket(null); }}>
-              Close
-            </button>
-          </div>
-        </div>
+        <TicketForm
+          ticket={selectedTicket} // Pass ticket to edit or null for new
+          onSubmit={addOrUpdateTicket} // Save ticket handler
+          onClose={() => {
+            setShowForm(false); // Close form
+            setSelectedTicket(null); // Clear selected ticket
+          }}
+        />
       )}
     </div>
   );
 };
 
+// Inline styles for layout
 const styles = {
   container: {
     padding: 20,
@@ -98,36 +161,6 @@ const styles = {
   right: {
     flex: 2,
     minWidth: 300,
-  },
-  // ✅ popup styles
-  popupOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 999,
-  },
-  popupBox: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    width: '400px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-    position: 'relative',
-  },
-  closeBtn: {
-    marginTop: 10,
-    padding: '8px 12px',
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 6,
-    cursor: 'pointer',
   },
 };
 

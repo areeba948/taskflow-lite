@@ -1,127 +1,131 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import "./TicketForm.css"; // Separate CSS file for styling
 
-const TicketForm = ({ onSubmit, ticket }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('open');
-  const [priority, setPriority] = useState('');
+// TicketForm component is used to create a new ticket or edit an existing one
+// Props:
+// - onSubmit: function to handle saving the ticket
+// - ticket: existing ticket object (if editing)
+// - onClose: function to close the form
+const TicketForm = ({ onSubmit, ticket, onClose }) => {
+  // State variables for form fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("open"); // default status is "open"
+  const [priority, setPriority] = useState("");
 
+  // When the 'ticket' prop changes, update the form fields
   useEffect(() => {
     if (ticket) {
-      setTitle(ticket.title || '');
-      setDescription(ticket.description || '');
-      setStatus(ticket.status || 'open');
-      setPriority(ticket.priority || '');
+      // If editing an existing ticket, fill form with its values
+      setTitle(ticket.title || "");
+      setDescription(ticket.description || "");
+      setStatus(ticket.status || "open");
+      setPriority(ticket.priority || "");
     } else {
-      setTitle('');
-      setDescription('');
-      setStatus('open');
-      setPriority('');
+      // If creating new ticket, reset form to default values
+      setTitle("");
+      setDescription("");
+      setStatus("open");
+      setPriority("");
     }
   }, [ticket]);
 
+  // Handle form submission
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent page refresh
+
+    // Ignore submission if title or description is empty
     if (!title.trim() || !description.trim()) return;
 
-    const now = new Date().toISOString();
+    const now = new Date().toISOString(); // current timestamp
 
+    // Prepare ticket object
     const updatedTicket = {
-      id: ticket?.id,
+      id: ticket?.id || Date.now(), // use existing id if editing, else generate new
       title,
       description,
       status,
       priority,
-      comments: ticket?.comments || [],
-      createdAt: ticket?.createdAt || now, // keep original if editing
-      updatedAt: ticket ? now : null, // only set updatedAt if editing
+      comments: ticket?.comments || [], // keep existing comments if editing
+      createdAt: ticket?.createdAt || now, // preserve creation date
+      updatedAt: ticket ? now : null, // mark update time if editing
     };
 
-    onSubmit(updatedTicket);
+    onSubmit(updatedTicket); // pass ticket to parent component
 
+    // Reset form only if creating a new ticket
     if (!ticket) {
-      setTitle('');
-      setDescription('');
-      setStatus('open');
-      setPriority('');
+      setTitle("");
+      setDescription("");
+      setStatus("open");
+      setPriority("");
     }
   };
 
+  // Close form if user clicks outside the form (overlay)
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={styles.formCard}>
-      <h2 style={styles.heading}>{ticket ? 'Edit Ticket' : 'Create Ticket'}</h2>
+    <div className="ticket-overlay" onClick={handleOverlayClick}>
+      <form className="ticket-form" onSubmit={handleSubmit}>
+        <h2>{ticket ? "Edit Ticket" : "Create Ticket"}</h2>
 
-      <input
-        type="text"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={styles.input}
-        required
-      />
+        {/* Title input */}
+        <label>Title</label>
+        <input
+          type="text"
+          placeholder="Enter ticket title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
 
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        style={styles.textarea}
-        required
-      />
+        {/* Description textarea */}
+        <label>Description</label>
+        <textarea
+          placeholder="Describe the issue or task..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
 
-      <select value={status} onChange={(e) => setStatus(e.target.value)} style={styles.select}>
-        <option value="open">Open</option>
-        <option value="in_progress">In Progress</option>
-        <option value="closed">Closed</option>
-      </select>
+        {/* Status and Priority selection */}
+        <div className="form-row">
+          <div>
+            <label>Status</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
 
-      <select value={priority} onChange={(e) => setPriority(e.target.value)} style={styles.select}>
-        <option value="">Priority (optional)</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
+          <div>
+            <label>Priority</label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              <option value="">Select priority</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
 
-      <button type="submit" style={styles.button}>
-        {ticket ? 'Update Ticket' : 'Add Ticket'}
-      </button>
-    </form>
+        {/* Form buttons */}
+        <div className="form-actions">
+          <button type="submit">{ticket ? "Update Ticket" : "Add Ticket"}</button>
+          <button type="button" className="cancel-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
   );
-};
-
-const styles = {
-  formCard: {
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  input: { padding: 8, borderRadius: 6, border: '1px solid #ccc' },
-  textarea: {
-    padding: 8,
-    borderRadius: 6,
-    border: '1px solid #ccc',
-    resize: 'vertical',
-    minHeight: 80,
-  },
-  select: { padding: 8, borderRadius: 6, border: '1px solid #ccc' },
-  button: {
-    padding: '8px 12px',
-    border: 'none',
-    borderRadius: 6,
-    backgroundColor: '#007bff',
-    color: '#fff',
-    cursor: 'pointer',
-    marginTop: 10,
-  },
 };
 
 export default TicketForm;

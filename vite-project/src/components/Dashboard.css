@@ -48,8 +48,8 @@
 /* Button */
 .new-ticket-btn {
   padding: 10px 20px;
-  background: #2563eb;
-  color: #fff;
+  background:#fff;
+  color: #2563eb;
   border: none;
   border-radius: 10px;
   cursor: pointer;
