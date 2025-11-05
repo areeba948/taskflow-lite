@@ -1,7 +1,7 @@
 import React from 'react';
-import logo from '../assets/logo.avif'; // your logo path
+import logo from '../assets/image-removebg-preview (1).png'; // your logo path
 
-const Dashboard = ({ tickets }) => {
+const Dashboard = ({ tickets, onNewTicket }) => {
   // Count by status
   const statusCount = tickets.reduce((acc, t) => {
     acc[t.status] = (acc[t.status] || 0) + 1;
@@ -18,10 +18,15 @@ const Dashboard = ({ tickets }) => {
 
   return (
     <div style={styles.container}>
-      {/* Header */}
+      {/* Header with New Ticket button */}
       <header style={styles.header}>
-        <img src={logo} alt="Logo" style={styles.logo} />
-        <h1 style={styles.title}>TaskFlow Lite</h1>
+        <div style={styles.leftHeader}>
+          <img src={logo} alt="Logo" style={styles.logo} />
+          <h1 style={styles.title}>TaskFlow Lite</h1>
+        </div>
+        <button style={styles.newTicketBtn} onClick={onNewTicket}>
+          New Ticket
+        </button>
       </header>
 
       <p style={styles.welcome}>
@@ -73,17 +78,37 @@ const styles = {
   header: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between', // ✅ pushes button to right
     marginBottom: 20,
+  },
+  leftHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 15,
   },
   logo: {
     width: 50,
     height: 50,
-    marginRight: 15,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
+  },
+  newTicketBtn: {
+    padding: '10px 16px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontSize: 14,
+    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    transition: 'background-color 0.2s ease',
+  },
+  newTicketBtnHover: {
+    backgroundColor: '#0056b3',
   },
   welcome: {
     fontSize: 16,
